@@ -2,8 +2,8 @@
 
 A simple llamaindex based project to install a local chatbot to answer questions about local files (PDFs or text files).
 
-The LLM used is phi3, a 7B parameter model which can run on a laptops.
-llamaindex requires min 32GB RAM.
+A local LLM is served up via ollama.
+RAG (Retrieval Augmented Generation) is provided by llamaindex which requires min 32GB RAM.
 
 privacy: The project does NOT use any remote services like Open AI or Amazon Bedrock, so the documents are kept private.
 
@@ -16,6 +16,8 @@ note: on Windows, please use WSL - I use Ubuntu 22.04.
 1. install python 3.12
 2. install ollama
 
+ref: https://ollama.com/download
+
 Unix:
 
 ```
@@ -26,10 +28,17 @@ note: this also installs graphics card (at least for NVidia)
 
 For Mac see https://github.com/ollama/ollama
 
-Download the LLM:
+Download the LLM and the embedding model:
 
 ```
-ollama pull phi3
+ollama pull llama3
+ollama pull nomic-embed-text
+```
+
+You may need to start ollama:
+
+```
+ollama serve
 ```
 
 3. install pipenv:
@@ -58,7 +67,7 @@ Put your text and PDF files under the `data` folder.
 or
 
 ```
-python -m pipenv run python -W "ignore" -m src.main
+pipenv run python -W "ignore" -m src.main
 ```
 
 # Debugging
@@ -72,7 +81,7 @@ pdb.set_trace()
 
 # Trouble-shooting
 
-- cannot run via pipenv: try with or without this prefix: `python -m`. note: it must be Python 3.11 (not 3.12) but if run 'pipenv' first then that should force 3.11.
+- cannot run via pipenv: try with or without this prefix: `python -m`. note: the version of Python must match that in the Pipfile file.
 
 # References
 
@@ -83,6 +92,8 @@ Ollama supports many LLM models - see https://github.com/ollama/ollama?tab=readm
 ## GPU support
 
 GPU support is not absolutely required with smaller LLMs, but if you have an NVidia GPU then it can improve the performance.
+
+With ollama, GPU support should be taken care of. However if you use the LLM 'directly' for example via HuggingFace packages, then you may need to setup CUDA.
 
 - Install CUDA [on Ubuntu]
 

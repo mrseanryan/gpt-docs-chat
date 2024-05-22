@@ -1,5 +1,5 @@
 """
-Read local text + PDF docs and use phi3 LLM to answer questions
+Read local text + PDF docs and use local LLM to answer questions
 
 ref = https://github.com/run-llama/llama_index/blob/main/docs/docs/examples/benchmarks/phi-3-mini-4k-instruct.ipynb
 """
@@ -28,7 +28,7 @@ logging.basicConfig(stream=sys.stdout, level=logging.WARN)
 logging.getLogger().addHandler(logging.StreamHandler(stream=sys.stdout))
 
 # LLM
-from llama_index.llms.huggingface import HuggingFaceLLM
+# from llama_index.llms.huggingface import HuggingFaceLLM
 
 
 def messages_to_prompt(messages):
@@ -56,40 +56,48 @@ def messages_to_prompt(messages):
 
 print_section("Loading LLM...")
 
-llm = HuggingFaceLLM(
-    model_name="microsoft/Phi-3-mini-4k-instruct",
-    model_kwargs={
-        "trust_remote_code": True,
-    },
-    generate_kwargs={"do_sample": True, "temperature": 0.1},
-    tokenizer_name="microsoft/Phi-3-mini-4k-instruct",
-    query_wrapper_prompt=(
-        "<|system|>\n"
-        "You are a helpful AI assistant.<|end|>\n"
-        "<|user|>\n"
-        "{query_str}<|end|>\n"
-        "<|assistant|>\n"
-    ),
-    messages_to_prompt=messages_to_prompt,
-    is_chat_model=True,
-)
+# llm = HuggingFaceLLM(
+#     model_name="microsoft/Phi-3-mini-4k-instruct",
+#     model_kwargs={
+#         "trust_remote_code": True,
+#     },
+#     generate_kwargs={"do_sample": True, "temperature": 0.1},
+#     tokenizer_name="microsoft/Phi-3-mini-4k-instruct",
+#     query_wrapper_prompt=(
+#         "<|system|>\n"
+#         "You are a helpful AI assistant.<|end|>\n"
+#         "<|user|>\n"
+#         "{query_str}<|end|>\n"
+#         "<|assistant|>\n"
+#     ),
+#     messages_to_prompt=messages_to_prompt,
+#     is_chat_model=True,
+# )
+
+from llama_index.llms.ollama import Ollama
+
+llm = Ollama(model="llama3", request_timeout=360.0)
 
 from llama_index.core import Settings, PromptHelper
-from llama_index.embeddings.huggingface import HuggingFaceEmbedding
+# from llama_index.embeddings.huggingface import HuggingFaceEmbedding
+
+from llama_index.embeddings.ollama import OllamaEmbedding
 
 Settings.llm = llm
-Settings.embed_model = HuggingFaceEmbedding(model_name="BAAI/bge-small-en-v1.5")
+# Settings.embed_model = HuggingFaceEmbedding(model_name="BAAI/bge-small-en-v1.5")
+Settings.embed_model = OllamaEmbedding(model_name="nomic-embed-text")
+
 
 # NOTE: try avoid error like "Token indices sequence length is longer than the specified maximum sequence length for this model"
-CONTEXT_WINDOW = 4096
-CHUNK_SIZE = 512
-Settings.chunk_size = CHUNK_SIZE
-Settings.context_window = CONTEXT_WINDOW
-MAX_OUTPUT_TOKENS = 1024
-prompt_helper = PromptHelper(
-    context_window=CONTEXT_WINDOW, num_output=MAX_OUTPUT_TOKENS
-)
-Settings.prompt_helper = prompt_helper
+# CONTEXT_WINDOW = 4096
+# CHUNK_SIZE = 512
+# Settings.chunk_size = CHUNK_SIZE
+# Settings.context_window = CONTEXT_WINDOW
+# MAX_OUTPUT_TOKENS = 1024
+# prompt_helper = PromptHelper(
+#     context_window=CONTEXT_WINDOW, num_output=MAX_OUTPUT_TOKENS
+# )
+# Settings.prompt_helper = prompt_helper
 
 # index - vector
 from llama_index.core import VectorStoreIndex
@@ -103,7 +111,7 @@ from llama_index.core import SummaryIndex
 print_section("Building summary index...")
 summary_index = SummaryIndex.from_documents(documents)
 
-# TODO - if index already exists, and it is newer than any data, then load it.
+# TODO - if index already exists, and file-list-with-modified-dates is same, then load it.
 # TODO - save index - ref https://docs.llamaindex.ai/en/stable/getting_started/starter_example/
 
 # router query engine
