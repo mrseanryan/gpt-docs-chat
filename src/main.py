@@ -6,11 +6,10 @@ ref = https://github.com/run-llama/llama_index/blob/main/docs/docs/examples/benc
 
 from cornsnake import util_print
 
+from . import util_data, config
+
 # built-in data reader - consumes text and PDF files
 from llama_index.core import SimpleDirectoryReader
-
-DOCS_LOCATION = "./data"
-
 
 def print_section(title):
     util_print.print_section(title)
@@ -24,9 +23,6 @@ logging.basicConfig(stream=sys.stdout, level=logging.WARN)
 logging.getLogger().addHandler(logging.StreamHandler(stream=sys.stdout))
 
 # LLM
-# from llama_index.llms.huggingface import HuggingFaceLLM
-
-
 def messages_to_prompt(messages):
     prompt = ""
     system_found = False
@@ -50,92 +46,55 @@ def messages_to_prompt(messages):
     return prompt
 
 
-print_section("Loading LLM...")
-
-# llm = HuggingFaceLLM(
-#     model_name="microsoft/Phi-3-mini-4k-instruct",
-#     model_kwargs={
-#         "trust_remote_code": True,
-#     },
-#     generate_kwargs={"do_sample": True, "temperature": 0.1},
-#     tokenizer_name="microsoft/Phi-3-mini-4k-instruct",
-#     query_wrapper_prompt=(
-#         "<|system|>\n"
-#         "You are a helpful AI assistant.<|end|>\n"
-#         "<|user|>\n"
-#         "{query_str}<|end|>\n"
-#         "<|assistant|>\n"
-#     ),
-#     messages_to_prompt=messages_to_prompt,
-#     is_chat_model=True,
-# )
+print_section(f"Loading LLM... [{config.MODEL}]")
 
 from llama_index.llms.ollama import Ollama
 
-llm = Ollama(model="llama3", request_timeout=360.0)
+llm = Ollama(model=config.MODEL, request_timeout=360.0, temperature=config.TEMPERATURE)
 
 from llama_index.core import Settings, PromptHelper
-
-# from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 
 from llama_index.embeddings.ollama import OllamaEmbedding
 
 Settings.llm = llm
-# Settings.embed_model = HuggingFaceEmbedding(model_name="BAAI/bge-small-en-v1.5")
 Settings.embed_model = OllamaEmbedding(model_name="nomic-embed-text")
 
-
-# NOTE: try avoid error like "Token indices sequence length is longer than the specified maximum sequence length for this model"
-# CONTEXT_WINDOW = 4096
-# CHUNK_SIZE = 512
-# Settings.chunk_size = CHUNK_SIZE
-# Settings.context_window = CONTEXT_WINDOW
-# MAX_OUTPUT_TOKENS = 1024
-# prompt_helper = PromptHelper(
-#     context_window=CONTEXT_WINDOW, num_output=MAX_OUTPUT_TOKENS
-# )
-# Settings.prompt_helper = prompt_helper
-
-# index - vector
-from llama_index.core import VectorStoreIndex, StorageContext, load_index_from_storage
+# indexes - vector + summary
+from llama_index.core import VectorStoreIndex, SummaryIndex, StorageContext, load_index_from_storage
 import os
 from . import util_data
 
-have_new_data = util_data.check_if_new_data(DOCS_LOCATION)
+have_new_data = util_data.check_if_new_data(config.DOCS_LOCATION)
 
 VECTOR_PERSIST_DIR = "./storage_vector"
 SUMMARY_PERSIST_DIR = "./storage_summary"
 
 documents = None
 vector_index = None
+summary_index = None
 if (
     have_new_data
     or not os.path.exists(VECTOR_PERSIST_DIR)
     or not os.path.exists(SUMMARY_PERSIST_DIR)
 ):
     # load the documents and create the index
-    print_section(f"Reading documents from {DOCS_LOCATION}")
-    documents = SimpleDirectoryReader(DOCS_LOCATION).load_data()
+    print_section(f"Reading documents from {config.DOCS_LOCATION}")
+    documents = SimpleDirectoryReader(config.DOCS_LOCATION).load_data()
 
     print_section("Building vector index...")
     vector_index = VectorStoreIndex.from_documents(documents)
     # store it for later
     vector_index.storage_context.persist(persist_dir=VECTOR_PERSIST_DIR)
-else:
-    print_section("Loading existing vector index...")
-    storage_context = StorageContext.from_defaults(persist_dir=VECTOR_PERSIST_DIR)
-    vector_index = load_index_from_storage(storage_context)
 
-# index - summary
-from llama_index.core import SummaryIndex
-
-summary_index = None
-if have_new_data or not os.path.exists(SUMMARY_PERSIST_DIR):
     print_section("Building summary index...")
     summary_index = SummaryIndex.from_documents(documents)
     # store it for later
     summary_index.storage_context.persist(persist_dir=SUMMARY_PERSIST_DIR)
 else:
+    print_section("Loading existing vector index...")
+    storage_context = StorageContext.from_defaults(persist_dir=VECTOR_PERSIST_DIR)
+    vector_index = load_index_from_storage(storage_context)
+
     print_section("Loading existing summary index...")
     storage_context = StorageContext.from_defaults(persist_dir=SUMMARY_PERSIST_DIR)
     summary_index = load_index_from_storage(storage_context)

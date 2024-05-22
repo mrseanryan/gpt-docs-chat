@@ -9,14 +9,18 @@ privacy: The project does NOT use any remote services like Open AI or Amazon Bed
 
 performance: an NVidia GPU can help speed up the performance (see [GPU support](#gpu-support) section at end)
 
-# Setup [Unix or Mac]
+# Setup [Unix or Mac or Windows]
 
-note: on Windows, please use WSL - I use Ubuntu 22.04.
+note: on Windows, recommend using Ollama directly (on WSL it seems slower even with CUDA for GPU).
 
 1. install python 3.12
 2. install ollama
 
 ref: https://ollama.com/download
+
+Windows:
+
+- download and run the Ollama installer
 
 Unix:
 
@@ -31,7 +35,7 @@ For Mac see https://github.com/ollama/ollama
 Download the LLM and the embedding model:
 
 ```
-ollama pull llama3
+ollama pull phi3
 ollama pull nomic-embed-text
 ```
 
@@ -82,6 +86,8 @@ pdb.set_trace()
 # Trouble-shooting
 
 - cannot run via pipenv: try with or without this prefix: `python -m`. note: the version of Python must match that in the Pipfile file.
+- llamaindex has exception with 404: check if that model was already pulled via ollama:
+    `ollama ls`
 
 # References
 
