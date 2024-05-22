@@ -57,7 +57,7 @@ from llama_index.core import Settings, PromptHelper
 from llama_index.embeddings.ollama import OllamaEmbedding
 
 Settings.llm = llm
-Settings.embed_model = OllamaEmbedding(model_name="nomic-embed-text")
+Settings.embed_model = OllamaEmbedding(model_name=config.EMBEDDING_MODEL)
 
 # indexes - vector + summary
 from llama_index.core import VectorStoreIndex, SummaryIndex, StorageContext, load_index_from_storage

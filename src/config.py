@@ -1,3 +1,4 @@
 DOCS_LOCATION = "./data"
-MODEL = "phi3" # phi3 llama3
+EMBEDDING_MODEL = "nomic-embed-text"
+MODEL = "llama3" # phi3 llama3
 TEMPERATURE = 0.7
