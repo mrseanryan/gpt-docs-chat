@@ -89,6 +89,10 @@ pdb.set_trace()
 - llamaindex has exception with 404: check if that model was already pulled via ollama:
     `ollama ls`
 
+- cannot see ollama logs:
+  - on Windows, try killing tha ollama app, and instead run via command line: `ollama servce`.  Also [see the docs](https://github.com/ollama/ollama/blob/main/docs/windows.md).
+  - on Linux, try `journalctl -e -u ollama`.  Also [see the docs](https://github.com/ollama/ollama/blob/main/docs/linux.md).
+
 # References
 
 ## LLMs
