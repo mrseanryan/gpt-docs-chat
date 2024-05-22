@@ -2,9 +2,11 @@
 
 A simple llamaindex based project to install a local chatbot to answer questions about local files (PDFs or text files).
 
-The LLM used is phi3 a 7B parameter model which can run on a laptops (RAM 32GB).
+The LLM used is phi3, a 7B parameter model which can run on a laptops (about 9GB RAM).
 
 privacy: The project does NOT use any remote services like Open AI or Amazon Bedrock, so the documents are kept private.
+
+performance: an NVidia GPU can help speed up the performance (see [GPU support](#gpu-support) section at end)
 
 # Setup [Unix or Mac]
 
@@ -104,7 +106,7 @@ Install CUDA toolkit Ubuntu - use [NVidia's website](https://developer.nvidia.co
 
 The options for Ubuntu-22.04 are:
 
-![Ubuntu-22.04 CUDA download options](nvidia-download-options--Ubuntu_22_04.png)
+![Ubuntu-22.04 CUDA download options](./images/nvidia-download-options--Ubuntu_22_04.png)
 
 The NVidia website will generate an install script.
 
