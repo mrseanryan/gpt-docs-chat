@@ -35,7 +35,7 @@ For Mac see https://github.com/ollama/ollama
 Download the LLM and the embedding model:
 
 ```
-ollama pull phi3
+ollama pull llama3
 ollama pull nomic-embed-text
 ```
 
