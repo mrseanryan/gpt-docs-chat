@@ -162,3 +162,7 @@ cython_debug/
 data 
 Pipfile.lock
 *.deb
+data-temp
+data.checkfile.json
+storage_summary
+storage_vector

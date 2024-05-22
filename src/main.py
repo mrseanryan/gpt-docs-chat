@@ -16,10 +16,6 @@ def print_section(title):
     util_print.print_section(title)
 
 
-print_section(f"Reading documents from {DOCS_LOCATION}")
-
-documents = SimpleDirectoryReader(DOCS_LOCATION).load_data()
-
 # logging
 import logging
 import sys
@@ -79,6 +75,7 @@ from llama_index.llms.ollama import Ollama
 llm = Ollama(model="llama3", request_timeout=360.0)
 
 from llama_index.core import Settings, PromptHelper
+
 # from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 
 from llama_index.embeddings.ollama import OllamaEmbedding
@@ -100,22 +97,50 @@ Settings.embed_model = OllamaEmbedding(model_name="nomic-embed-text")
 # Settings.prompt_helper = prompt_helper
 
 # index - vector
-from llama_index.core import VectorStoreIndex
+from llama_index.core import VectorStoreIndex, StorageContext, load_index_from_storage
+import os
+from . import util_data
 
-print_section("Building vector index...")
-vector_index = VectorStoreIndex.from_documents(documents)
+have_new_data = util_data.check_if_new_data(DOCS_LOCATION)
+
+VECTOR_PERSIST_DIR = "./storage_vector"
+SUMMARY_PERSIST_DIR = "./storage_summary"
+
+documents = None
+vector_index = None
+if (
+    have_new_data
+    or not os.path.exists(VECTOR_PERSIST_DIR)
+    or not os.path.exists(SUMMARY_PERSIST_DIR)
+):
+    # load the documents and create the index
+    print_section(f"Reading documents from {DOCS_LOCATION}")
+    documents = SimpleDirectoryReader(DOCS_LOCATION).load_data()
+
+    print_section("Building vector index...")
+    vector_index = VectorStoreIndex.from_documents(documents)
+    # store it for later
+    vector_index.storage_context.persist(persist_dir=VECTOR_PERSIST_DIR)
+else:
+    print_section("Loading existing vector index...")
+    storage_context = StorageContext.from_defaults(persist_dir=VECTOR_PERSIST_DIR)
+    vector_index = load_index_from_storage(storage_context)
 
 # index - summary
 from llama_index.core import SummaryIndex
 
-print_section("Building summary index...")
-summary_index = SummaryIndex.from_documents(documents)
-
-# TODO - if index already exists, and file-list-with-modified-dates is same, then load it.
-# TODO - save index - ref https://docs.llamaindex.ai/en/stable/getting_started/starter_example/
+summary_index = None
+if have_new_data or not os.path.exists(SUMMARY_PERSIST_DIR):
+    print_section("Building summary index...")
+    summary_index = SummaryIndex.from_documents(documents)
+    # store it for later
+    summary_index.storage_context.persist(persist_dir=SUMMARY_PERSIST_DIR)
+else:
+    print_section("Loading existing summary index...")
+    storage_context = StorageContext.from_defaults(persist_dir=SUMMARY_PERSIST_DIR)
+    summary_index = load_index_from_storage(storage_context)
 
 # router query engine
-
 from llama_index.core.tools import QueryEngineTool, ToolMetadata
 
 vector_tool = QueryEngineTool(
@@ -159,9 +184,13 @@ def send_prompt(user_query):
 USER_EXIT = "bye"
 
 while True:
-    user_query = input("How can I help? [to exit, type 'bye' and press ENTER] >>")
+    user_query = input(
+        "How can I help? [to exit, type 'bye' and press ENTER] [for a summary, say 'summary'] >>"
+    )
     if user_query.lower() == USER_EXIT.lower():
         print("Goodbye for now")
         break
+    if not user_query:
+        continue
     response = send_prompt(user_query)
     _display_response(response)
