@@ -130,8 +130,7 @@ summary_tool = QueryEngineTool(
 from llama_index.core.query_engine import RouterQueryEngine
 
 query_engine = RouterQueryEngine.from_defaults(
-    [vector_tool, summary_tool],
-    select_multi=True,
+    [vector_tool, summary_tool], select_multi=False
 )
 
 
@@ -149,9 +148,11 @@ def send_prompt(user_query):
     return query_engine.query(user_query)
 
 
+USER_EXIT = "bye"
+
 while True:
-    user_query = input("How can I help? [Press ENTER to exit] >>")
-    if not user_query:
+    user_query = input("How can I help? [to exit, type 'bye' and press ENTER] >>")
+    if user_query.lower() == USER_EXIT.lower():
         print("Goodbye for now")
         break
     response = send_prompt(user_query)

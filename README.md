@@ -2,7 +2,8 @@
 
 A simple llamaindex based project to install a local chatbot to answer questions about local files (PDFs or text files).
 
-The LLM used is phi3, a 7B parameter model which can run on a laptops (about 9GB RAM).
+The LLM used is phi3, a 7B parameter model which can run on a laptops.
+llamaindex requires min 32GB RAM.
 
 privacy: The project does NOT use any remote services like Open AI or Amazon Bedrock, so the documents are kept private.
 
