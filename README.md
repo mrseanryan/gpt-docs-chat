@@ -93,6 +93,9 @@ pdb.set_trace()
   - on Windows, try killing tha ollama app, and instead run via command line: `ollama servce`.  Also [see the docs](https://github.com/ollama/ollama/blob/main/docs/windows.md).
   - on Linux, try `journalctl -e -u ollama`.  Also [see the docs](https://github.com/ollama/ollama/blob/main/docs/linux.md).
 
+- LLM is too slow:
+  - to reduce the amount of work done, try editting `config.py` and setting IS_SUMMARY_ENABLED or IS_VECTOR_ENABLED to False.
+
 # References
 
 ## LLMs

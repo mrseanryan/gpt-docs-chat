@@ -81,50 +81,65 @@ if (
     print_section(f"Reading documents from {config.DOCS_LOCATION}")
     documents = SimpleDirectoryReader(config.DOCS_LOCATION).load_data()
 
-    print_section("Building vector index...")
-    vector_index = VectorStoreIndex.from_documents(documents)
-    # store it for later
-    vector_index.storage_context.persist(persist_dir=VECTOR_PERSIST_DIR)
+    if config.IS_VECTOR_ENABLED:
+        print_section("Building vector index...")
+        vector_index = VectorStoreIndex.from_documents(documents)
+        # store it for later
+        vector_index.storage_context.persist(persist_dir=VECTOR_PERSIST_DIR)
 
-    print_section("Building summary index...")
-    summary_index = SummaryIndex.from_documents(documents)
-    # store it for later
-    summary_index.storage_context.persist(persist_dir=SUMMARY_PERSIST_DIR)
+    if config.IS_SUMMARY_ENABLED:
+        print_section("Building summary index...")
+        summary_index = SummaryIndex.from_documents(documents)
+        # store it for later
+        summary_index.storage_context.persist(persist_dir=SUMMARY_PERSIST_DIR)
 else:
-    print_section("Loading existing vector index...")
-    storage_context = StorageContext.from_defaults(persist_dir=VECTOR_PERSIST_DIR)
-    vector_index = load_index_from_storage(storage_context)
+    if config.IS_VECTOR_ENABLED:
+        print_section("Loading existing vector index...")
+        storage_context = StorageContext.from_defaults(persist_dir=VECTOR_PERSIST_DIR)
+        vector_index = load_index_from_storage(storage_context)
 
-    print_section("Loading existing summary index...")
-    storage_context = StorageContext.from_defaults(persist_dir=SUMMARY_PERSIST_DIR)
-    summary_index = load_index_from_storage(storage_context)
+    if config.IS_SUMMARY_ENABLED:
+        print_section("Loading existing summary index...")
+        storage_context = StorageContext.from_defaults(persist_dir=SUMMARY_PERSIST_DIR)
+        summary_index = load_index_from_storage(storage_context)
 
 # router query engine
 from llama_index.core.tools import QueryEngineTool, ToolMetadata
 
-vector_tool = QueryEngineTool(
-    vector_index.as_query_engine(),
-    metadata=ToolMetadata(
-        name="vector_search",
-        description="Useful for searching for specific facts.",
-    ),
-)
+vector_tool = None
+if config.IS_VECTOR_ENABLED:
+    vector_tool = QueryEngineTool(
+        vector_index.as_query_engine(),
+        metadata=ToolMetadata(
+            name="vector_search",
+            description="Useful for searching for specific facts.",
+        ),
+    )
 
-summary_tool = QueryEngineTool(
-    summary_index.as_query_engine(response_mode="tree_summarize"),
-    metadata=ToolMetadata(
-        name="summary",
-        description="Useful for summarizing an entire document.",
-    ),
-)
+summary_tool = None
+if config.IS_SUMMARY_ENABLED:
+    summary_tool = QueryEngineTool(
+        summary_index.as_query_engine(response_mode="tree_summarize"),
+        metadata=ToolMetadata(
+            name="summary",
+            description="Useful for summarizing an entire document.",
+        ),
+    )
 
 # multiselector
 from llama_index.core.query_engine import RouterQueryEngine
 
-query_engine = RouterQueryEngine.from_defaults(
-    [vector_tool, summary_tool], select_multi=False
-)
-
+query_engine = None
+if config.IS_SUMMARY_ENABLED and config.IS_VECTOR_ENABLED:
+    query_engine = RouterQueryEngine.from_defaults(
+        [vector_tool, summary_tool], select_multi=False
+    )
+elif config.IS_SUMMARY_ENABLED:
+    query_engine = summary_tool.query_engine
+elif config.IS_VECTOR_ENABLED:
+    query_engine = vector_tool.query_engine
+else:
+    raise ValueError("One of IS_SUMMARY_ENABLED or IS_VECTOR_ENABLED must be enabled - please check config.py")
 
 def _display_response(response):
     print(response)
