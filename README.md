@@ -9,6 +9,18 @@ privacy: The project does NOT use any remote services like Open AI or Amazon Bed
 
 performance: an NVidia GPU can help speed up the performance (see [GPU support](#gpu-support) section at end)
 
+# Example run
+
+```
+=== === ===     [1] Loading LLM... [llama3]     === === ===
+=== === ===     [2] Setting up vector store on redis... === === ===
+19:48:14 redisvl.index.index INFO   Index already exists, not overwriting.
+=== === ===     [3] Reading documents from ./data       === === ===
+Ingested 56 Nodes
+=== === ===     [4] Starting query loop...      === === ===
+How can I help? [to exit, type 'bye' and press ENTER] [for a summary, say 'summary'] >>what data is available for March 2024?
+```
+
 # Setup [Unix or Mac or Windows]
 
 note: on Windows, recommend using Ollama directly (on WSL it seems slower even with CUDA for GPU).

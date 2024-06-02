@@ -1,5 +1,7 @@
 DOCS_LOCATION = "./data"
 EMBEDDING_MODEL = "nomic-embed-text"
+EMBEDDING_MODEL_BAAI = "BAAI/bge-small-en-v1.5"  # TODO is this more efficient than nomic-embed-text?
+
 MODEL = "llama3"  # phi3 llama3
 TEMPERATURE = 0.7
 

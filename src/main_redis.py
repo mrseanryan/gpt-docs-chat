@@ -20,7 +20,7 @@ from llama_index.vector_stores.redis import RedisVectorStore
 
 from redisvl.schema import IndexSchema
 
-embed_model = HuggingFaceEmbedding(model_name="BAAI/bge-small-en-v1.5")
+embed_model = HuggingFaceEmbedding(model_name=config.EMBEDDING_MODEL_BAAI)
 
 util_print.print_section(f"Loading LLM... [{config.MODEL}]")
 
