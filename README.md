@@ -74,6 +74,23 @@ or
 pipenv run python -W "ignore" -m src.main
 ```
 
+# Setup [using redis]
+
+Using redis helps improve performance.
+
+1. Install Docker
+2. Execute redis
+
+- First time run: `./run_redis_first.sh`
+- Subsequent runs: `./run_redis_again.sh`
+
+3. Run
+
+```
+./go-redis.sh
+```
+
+
 # Debugging
 
 You can set breakpoints by adding Python code:
