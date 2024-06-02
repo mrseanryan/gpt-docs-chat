@@ -104,15 +104,15 @@ pdb.set_trace()
 # Trouble-shooting
 
 - cannot run via pipenv: try with or without this prefix: `python -m`. note: the version of Python must match that in the Pipfile file.
-- llamaindex has exception with 404: check if that model was already pulled via ollama:
-    `ollama ls`
+- llamaindex has exception with 404: check if that model was already pulled via ollama: `ollama ls`. If the model is missing, then download it via `ollama pull <model name>`.
 
 - cannot see ollama logs:
-  - on Windows, try killing tha ollama app, and instead run via command line: `ollama servce`.  Also [see the docs](https://github.com/ollama/ollama/blob/main/docs/windows.md).
-  - on Linux, try `journalctl -e -u ollama`.  Also [see the docs](https://github.com/ollama/ollama/blob/main/docs/linux.md).
+  - on Windows, try killing tha ollama app, and instead run via command line: `ollama serve`.  Also [see the ollama docs](https://github.com/ollama/ollama/blob/main/docs/windows.md).
+  - on Linux, try `journalctl -e -u ollama`.  Also [see the ollama docs](https://github.com/ollama/ollama/blob/main/docs/linux.md).
 
 - LLM is too slow:
-  - to reduce the amount of work done, try editting `config.py` and setting IS_SUMMARY_ENABLED or IS_VECTOR_ENABLED to False.
+  - use redis as vector store (see above)
+  - to reduce the amount of work done, try editting `config.py` and set IS_SUMMARY_ENABLED to False (IS_VECTOR_ENABLED should be fast).
 
 # References
 
