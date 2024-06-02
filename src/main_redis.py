@@ -1,3 +1,5 @@
+# ref https://docs.llamaindex.ai/en/stable/examples/ingestion/ingestion_gdrive/
+
 from cornsnake import util_print
 
 # built-in data reader - consumes text and PDF files
@@ -89,7 +91,7 @@ pipeline = IngestionPipeline(
 from llama_index.core import VectorStoreIndex
 
 # TODO try SummaryIndex
-index = VectorStoreIndex.from_vector_store(
+vector_index = VectorStoreIndex.from_vector_store(
     pipeline.vector_store, embed_model=embed_model
 )
 
@@ -99,18 +101,22 @@ documents = SimpleDirectoryReader(config.DOCS_LOCATION).load_data()
 nodes = pipeline.run(documents=documents)
 print(f"Ingested {len(nodes)} Nodes")
 
-query_engine = index.as_query_engine()
+query_engine = vector_index.as_query_engine()
+
 
 def _display_response(response):
     print(response)
+
 
 util_print.print_section("Starting query loop...")
 
 from tenacity import retry, wait_fixed, stop_after_attempt
 
+
 @retry(wait=wait_fixed(1), stop=stop_after_attempt(3))
 def send_prompt(user_query):
     return query_engine.query(user_query)
+
 
 USER_EXIT = "bye"
 
