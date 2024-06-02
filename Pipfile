@@ -6,7 +6,7 @@ name = "pypi"
 [packages]
 accelerate = "~=0.30.1"
 bitsandbytes = "~=0.43.1"
-cornsnake = "~=0.0.50"
+cornsnake = "~=0.0.62"
 llama-index                             = "~=0.10.38"
 llama-index-core                        = "~=0.10.38.post1"
 llama-index-embeddings-ollama           = "~=0.1.2"
@@ -27,4 +27,4 @@ ruff = "~=0.3.3"
 coverage = "~=7.4.4"
 
 [requires]
-python_version = "3.12"
+python_version = "3.11"
