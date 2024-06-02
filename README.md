@@ -62,7 +62,25 @@ pipenv install --dev
 
 Put your text and PDF files under the `data` folder.
 
+# Setup [using redis][better performance]
+
+Adding redis to store vectors helps improve the performance.
+
+1. Install Docker
+2. Execute redis
+
+- First time run: `./run_redis_first.sh`
+- Subsequent runs: `./run_redis_again.sh`
+
 # Run
+
+WITH redis:
+
+```
+./go-redis.sh
+```
+
+WITHOUT redis:
 
 ```
 ./go.sh

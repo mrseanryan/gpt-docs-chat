@@ -11,6 +11,7 @@ from . import util_data, config
 # built-in data reader - consumes text and PDF files
 from llama_index.core import SimpleDirectoryReader
 
+
 def print_section(title):
     util_print.print_section(title)
 
@@ -21,6 +22,7 @@ import sys
 
 logging.basicConfig(stream=sys.stdout, level=logging.WARN)
 logging.getLogger().addHandler(logging.StreamHandler(stream=sys.stdout))
+
 
 # LLM
 def messages_to_prompt(messages):
@@ -60,7 +62,12 @@ Settings.llm = llm
 Settings.embed_model = OllamaEmbedding(model_name=config.EMBEDDING_MODEL)
 
 # indexes - vector + summary
-from llama_index.core import VectorStoreIndex, SummaryIndex, StorageContext, load_index_from_storage
+from llama_index.core import (
+    VectorStoreIndex,
+    SummaryIndex,
+    StorageContext,
+    load_index_from_storage,
+)
 import os
 from . import util_data
 
@@ -139,7 +146,10 @@ elif config.IS_SUMMARY_ENABLED:
 elif config.IS_VECTOR_ENABLED:
     query_engine = vector_tool.query_engine
 else:
-    raise ValueError("One of IS_SUMMARY_ENABLED or IS_VECTOR_ENABLED must be enabled - please check config.py")
+    raise ValueError(
+        "One of IS_SUMMARY_ENABLED or IS_VECTOR_ENABLED must be enabled - please check config.py"
+    )
+
 
 def _display_response(response):
     print(response)
